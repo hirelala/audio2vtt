@@ -1,0 +1,8 @@
+services:
+  audio2vtt-api:
+    build: .
+    container_name: audio2vtt-api
+    env_file:
+      - .env
+    volumes:
+      - ./works:/workspace/works
