@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Optional
-from fastapi import FastAPI, File, UploadFile, HTTPException, Form
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Depends, Header
+from fastapi.security import APIKeyHeader
 from fastapi.responses import PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -9,6 +10,7 @@ from src.whisper_utils import whisper_transcribe
 from src.config import (
     DEBUG,
     SUPPORTED_AUDIO_FORMATS,
+    ADMIN_API_KEY,
 )
 
 app = FastAPI(
@@ -27,12 +29,35 @@ app.add_middleware(
 )
 
 
+# API Key authentication
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+
+async def get_api_key(api_key: Optional[str] = Depends(api_key_header)):
+    """Get and validate API key"""
+    # If no admin API key is set, skip authentication
+    if not ADMIN_API_KEY:
+        return None
+
+    # If admin API key is set but no header provided
+    if not api_key:
+        raise HTTPException(
+            status_code=401, detail="API key required. Please provide X-API-Key header"
+        )
+
+    # Verify the API key
+    if api_key != ADMIN_API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+
+    return api_key
+
+
 @app.get("/")
 async def root():
     return 1
 
 
-@app.post("/transcribe/vtt")
+@app.post("/transcribe/vtt", dependencies=[Depends(get_api_key)])
 async def transcribe_audio_vtt_only(
     file: UploadFile = File(...), language: Optional[str] = Form(None)
 ):
@@ -51,4 +76,4 @@ async def transcribe_audio_vtt_only(
 
 
 if __name__ == "__main__":
-    uvicorn.run("src.main:app", host="0.0.0.0", port="8000", reload=DEBUG)
+    uvicorn.run("src.main:app", host="0.0.0.0", port=8000, reload=DEBUG)

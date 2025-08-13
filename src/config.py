@@ -21,6 +21,9 @@ WHISPER_LOCAL_FILES_ONLY = (
     os.getenv("WHISPER_LOCAL_FILES_ONLY", "False").lower() == "true"
 )
 
+# API Authentication
+ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
+
 # File paths
 MODELS_DIR = Path(__file__).parent.parent.joinpath("models")
 MODELS_DIR.mkdir(exist_ok=True)
