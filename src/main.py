@@ -34,33 +34,11 @@ async def transcribe_audio_vtt_only(
             detail=f"Unsupported file format. Supported formats: {', '.join(SUPPORTED_AUDIO_FORMATS)}",
         )
 
-    # Create temporary file
-    temp_file = TEMP_DIR / f"temp_{file.filename}"
-
     try:
-        # Save uploaded file
-        with open(temp_file, "wb") as buffer:
-            content = await file.read()
-            buffer.write(content)
-
-        # Transcribe audio
-        vtt_content, _ = whisper_transcribe(temp_file, language)
-
-        return PlainTextResponse(
-            content=vtt_content,
-            media_type="text/plain",
-            headers={
-                "Content-Disposition": f"attachment; filename={file.filename}.vtt"
-            },
-        )
-
+        vtt_content, _ = whisper_transcribe(file.file, language)
+        return PlainTextResponse(content=vtt_content, media_type="text/plain")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Transcription failed: {str(e)}")
-
-    finally:
-        # Clean up temporary file
-        if temp_file.exists():
-            temp_file.unlink()
 
 
 if __name__ == "__main__":

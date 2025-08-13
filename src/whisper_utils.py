@@ -1,5 +1,6 @@
 from pathlib import Path
 from faster_whisper import WhisperModel
+from typing import BinaryIO
 from src.config import (
     MODELS_DIR,
     WHISPER_DEVICE,
@@ -42,10 +43,10 @@ def get_whisper_model() -> WhisperModel:
     return _whisper_model
 
 
-def whisper_transcribe(audio_path: Path, language: str = None):
+def whisper_transcribe(audio_data: BinaryIO, language: str = None):
     """Transcribe audio file to VTT format"""
     transcribe_kwargs = {
-        "audio": audio_path.as_posix(),
+        "audio": audio_data,
         "beam_size": WHISPER_BEAM_SIZE,
         "word_timestamps": True,
         "vad_filter": True,
