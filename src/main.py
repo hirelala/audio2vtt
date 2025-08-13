@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Optional
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.responses import PlainTextResponse
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from src.whisper_utils import whisper_transcribe
@@ -14,6 +15,15 @@ app = FastAPI(
     title="Audio to VTT API",
     description="Convert audio files to VTT subtitles using Fast Whisper",
     version="1.0.0",
+)
+
+# Add CORS middleware to allow all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
 )
 
 
