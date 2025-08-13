@@ -1,0 +1,15 @@
+.venv/
+venv/
+*.pyc
+__pycache__/
+.env
+.DS_Store
+.idea/
+.vscode/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+temp/
+uploads/
+models/
