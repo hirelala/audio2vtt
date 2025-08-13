@@ -4,5 +4,7 @@ services:
     container_name: audio2vtt-api
     env_file:
       - .env
+    ports:
+      - ${API_PORT:-8000}:8000
     volumes:
       - ./works:/workspace/works

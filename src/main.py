@@ -1,18 +1,13 @@
-import os
-import tempfile
 from pathlib import Path
 from typing import Optional
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.responses import PlainTextResponse
 import uvicorn
 
-from whisper_utils import whisper_transcribe
-from config import (
-    API_HOST,
-    API_PORT,
+from src.whisper_utils import whisper_transcribe
+from src.config import (
     DEBUG,
     SUPPORTED_AUDIO_FORMATS,
-    UPLOAD_DIR,
     TEMP_DIR,
 )
 
@@ -69,4 +64,4 @@ async def transcribe_audio_vtt_only(
 
 
 if __name__ == "__main__":
-    uvicorn.run("src.main:app", host=API_HOST, port=API_PORT, reload=DEBUG)
+    uvicorn.run("src.main:app", host="0.0.0.0", port="8000", reload=DEBUG)

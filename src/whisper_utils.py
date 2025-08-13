@@ -1,6 +1,6 @@
 from pathlib import Path
 from faster_whisper import WhisperModel
-from config import (
+from src.config import (
     MODELS_DIR,
     WHISPER_DEVICE,
     WHISPER_COMPUTE_TYPE,
