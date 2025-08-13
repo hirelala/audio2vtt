@@ -21,10 +21,10 @@ WHISPER_LOCAL_FILES_ONLY = (
 )
 
 # File paths
-BASE_DIR = Path(__file__).parent
-MODELS_DIR = BASE_DIR / "models"
-UPLOAD_DIR = BASE_DIR / "uploads"
-TEMP_DIR = BASE_DIR / "temp"
+WORKS_DIR = Path(__file__).parent.parent.joinpath("works")
+MODELS_DIR = WORKS_DIR / "models"
+UPLOAD_DIR = WORKS_DIR / "uploads"
+TEMP_DIR = WORKS_DIR / "temp"
 
 # Create directories if they don't exist
 MODELS_DIR.mkdir(exist_ok=True)

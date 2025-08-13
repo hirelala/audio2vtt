@@ -69,4 +69,4 @@ async def transcribe_audio_vtt_only(
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host=API_HOST, port=API_PORT, reload=DEBUG)
+    uvicorn.run("src.main:app", host=API_HOST, port=API_PORT, reload=DEBUG)
