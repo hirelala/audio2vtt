@@ -8,7 +8,6 @@ from src.whisper_utils import whisper_transcribe
 from src.config import (
     DEBUG,
     SUPPORTED_AUDIO_FORMATS,
-    TEMP_DIR,
 )
 
 app = FastAPI(

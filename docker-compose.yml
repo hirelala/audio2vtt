@@ -7,4 +7,4 @@ services:
     ports:
       - ${API_PORT:-8000}:8000
     volumes:
-      - ./works:/workspace/works
+      - ./models:/workspace/models

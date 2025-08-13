@@ -19,15 +19,9 @@ WHISPER_LOCAL_FILES_ONLY = (
 )
 
 # File paths
-WORKS_DIR = Path(__file__).parent.parent.joinpath("works")
-MODELS_DIR = WORKS_DIR / "models"
-UPLOAD_DIR = WORKS_DIR / "uploads"
-TEMP_DIR = WORKS_DIR / "temp"
-
-# Create directories if they don't exist
+MODELS_DIR = Path(__file__).parent.parent.joinpath("models")
 MODELS_DIR.mkdir(exist_ok=True)
-UPLOAD_DIR.mkdir(exist_ok=True)
-TEMP_DIR.mkdir(exist_ok=True)
+
 
 # Supported audio formats
 SUPPORTED_AUDIO_FORMATS = {".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac"}
