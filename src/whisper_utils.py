@@ -34,6 +34,7 @@ def get_whisper_model() -> WhisperModel:
         _whisper_model = WhisperModel(
             model_size_or_path=WHISPER_MODEL,
             device=WHISPER_DEVICE,
+            device_index=0,
             compute_type=WHISPER_COMPUTE_TYPE,
             cpu_threads=WHISPER_CPU_THREADS,
             num_workers=WHISPER_NUM_WORKERS,

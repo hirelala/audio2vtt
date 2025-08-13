@@ -10,6 +10,9 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 # Whisper Configuration
 WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
 WHISPER_DEVICE = os.getenv("WHISPER_DEVICE", "cpu")  # cpu, cuda, metal
+WHISPER_DEVICE_INDEX = [
+    int(i) for i in os.getenv("WHISPER_DEVICE_INDEX", "0").split(",")
+]
 WHISPER_COMPUTE_TYPE = os.getenv("WHISPER_COMPUTE_TYPE", "int8")
 WHISPER_CPU_THREADS = int(os.getenv("WHISPER_CPU_THREADS", "4"))
 WHISPER_NUM_WORKERS = int(os.getenv("WHISPER_NUM_WORKERS", "1"))
