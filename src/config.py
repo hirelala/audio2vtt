@@ -24,6 +24,10 @@ WHISPER_LOCAL_FILES_ONLY = (
 # API Authentication
 ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
 
+# Queue Configuration
+QUEUE_WORKERS = int(os.getenv("QUEUE_WORKERS", "2"))
+MAX_QUEUE_SIZE = int(os.getenv("MAX_QUEUE_SIZE", "100"))
+
 # File paths
 MODELS_DIR = Path(__file__).parent.parent.joinpath("models")
 MODELS_DIR.mkdir(exist_ok=True)
