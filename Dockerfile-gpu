@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends software-proper
     python3.12-dev \
     python3-pip \
     build-essential \
-    mime-support \
+    media-types \
     libmagic1 \
     ffmpeg \
     ca-certificates \
