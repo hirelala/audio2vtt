@@ -41,7 +41,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = "==0.104.1" },
-    { name = "faster-whisper", specifier = "==0.10.0" },
+    { name = "faster-whisper", specifier = "==1.2.0" },
     { name = "pydantic", specifier = "==2.5.0" },
     { name = "python-dotenv", specifier = ">=1.1.1" },
     { name = "python-multipart", specifier = "==0.0.6" },
@@ -54,14 +54,6 @@ name = "av"
 version = "11.0.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/21/e8/fadad78511fd108e17f0df1dd2a29755020e92345791e4fe207d304a0cd4/av-11.0.0.tar.gz", hash = "sha256:48223f000a252070f8e700ff634bb7fb3aa1b7bc7e450373029fbdd6f369ac31", size = 3652129 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3a/c9/126d8667835521b943321300211b53730e5d6c8ed6a47b99970a550a0b16/av-11.0.0-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:892583e2c6b8c2500e5d24310f499caefcdaa2e48c8f7169ad41041aaaf4da11", size = 26896259 },
-    { url = "https://files.pythonhosted.org/packages/38/55/7b78acd536ae2aad9e5e57e6f1814d82c69fe1181832d06bb5f952d1d4ff/av-11.0.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:6943679d70a9f4de974049e7ae2cf0b20afe0d7ddab650526c02a6cf9adcd08f", size = 20484450 },
-    { url = "https://files.pythonhosted.org/packages/46/da/32b8528e9029ed1d252e3e47b5f40deb4ad13175e30704128db5a0fae8ab/av-11.0.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e6d73b038ccf1df5c16bc643eee5c694fb7732e09375e2f4903c1f4ce90dfb72", size = 32347096 },
-    { url = "https://files.pythonhosted.org/packages/04/53/b0ff1a8231c4e75d10306daaa7ed3ee5ed526acb21ca659a6c68d9d94ec9/av-11.0.0-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c83422db3333e97b9680700df5185139352fc3a568b14179da3bdcbeb2f0e91b", size = 31724790 },
-    { url = "https://files.pythonhosted.org/packages/4d/d8/fb59d2db535305027b006d87355dd6a38c99d61380673412af27c222e4ca/av-11.0.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8413900f6a3639e0088c018a3a516a1656d4d16799e7aa759a16ddf3bd268e2b", size = 34111124 },
-    { url = "https://files.pythonhosted.org/packages/c4/f1/c49ceb3081ef1ec858feb36a3bad24b2b73ec088227ba3bc66b74b82bacc/av-11.0.0-cp312-cp312-win_amd64.whl", hash = "sha256:908e49ee336223801d8f2f7dca5a1deb64e9d8256138b8e7a79013b682a6ebb5", size = 25891334 },
-]
 
 [[package]]
 name = "certifi"
@@ -186,7 +178,7 @@ wheels = [
 
 [[package]]
 name = "faster-whisper"
-version = "0.10.0"
+version = "1.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "av" },
@@ -194,10 +186,11 @@ dependencies = [
     { name = "huggingface-hub" },
     { name = "onnxruntime" },
     { name = "tokenizers" },
+    { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f9/6f/9171462ce4569d5ba8e3b26fbf45a2123ed764220fb183ef17e1be9e9ca5/faster-whisper-0.10.0.tar.gz", hash = "sha256:591809328b93c8e4594d52097ec6352a270a81fbb7b956254967f28700f7e4da", size = 1545195 }
+sdist = { url = "https://files.pythonhosted.org/packages/77/c2/72002e5f80e73941de05f7b4347ea183d29f76768978a04acda68401c931/faster-whisper-1.2.0.tar.gz", hash = "sha256:56b20d616a575049a79f33b04f02db0868ce38c5d057a0b816d36ca59a6d2598", size = 1124896 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/25/2e/0ae6cebc6ec9ba348d231c8b12d3211d443b2bc0dbf0ecc4cb366ed654fa/faster_whisper-0.10.0-py3-none-any.whl", hash = "sha256:ac45d6f4db638fcb4fa4550da0268ca1757bc40a56ed911c56363fd040cd6c1b", size = 1543404 },
+    { url = "https://files.pythonhosted.org/packages/da/6d/64cdc135e4195f9473c2e42aa1d2268654be4c289223828eee8e6ba4fc6d/faster_whisper-1.2.0-py3-none-any.whl", hash = "sha256:e5535628fe93b5123029b410fd8edba2d28f8cee9f8fff8119138e5a9d81afbe", size = 1118581 },
 ]
 
 [[package]]

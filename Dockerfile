@@ -9,14 +9,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     media-types \
     libmagic1 \
     ffmpeg \
-    pkg-config \
-    libavformat-dev \
-    libavcodec-dev \
-    libavdevice-dev \
-    libavutil-dev \
-    libswscale-dev \
-    libswresample-dev \
-    libavfilter-dev \
     ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*

@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi==0.104.1",
-    "faster-whisper==0.10.0",
+    "faster-whisper==1.2.0",
     "pydantic==2.5.0",
     "python-dotenv>=1.1.1",
     "python-multipart==0.0.6",
