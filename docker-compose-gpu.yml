@@ -1,6 +1,8 @@
 services:
   audio2vtt-api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile-gpu
     container_name: audio2vtt-api
     env_file:
       - .env
