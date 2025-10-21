@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Optional
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Depends
 from fastapi.security import APIKeyHeader
 from fastapi.responses import JSONResponse
@@ -16,10 +17,20 @@ from src.config import (
     ADMIN_API_KEY,
 )
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    queue_manager = get_queue_manager()
+    await queue_manager.start()
+    yield
+    await queue_manager.stop()
+
+
 app = FastAPI(
     title="Audio to VTT API",
     description="Convert audio files to VTT subtitles using Fast Whisper",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Add CORS middleware to allow all origins
@@ -30,20 +41,6 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
 )
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Start the queue workers on application startup"""
-    queue_manager = get_queue_manager()
-    await queue_manager.start()
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Stop the queue workers on application shutdown"""
-    queue_manager = get_queue_manager()
-    await queue_manager.stop()
 
 
 # API Key authentication
