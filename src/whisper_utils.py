@@ -45,7 +45,7 @@ def get_whisper_model() -> WhisperModel:
     return _whisper_model
 
 
-def whisper_transcribe(audio_data: BinaryIO, language: str = None):
+def whisper_transcribe(audio_data: BinaryIO, language: str = None) -> (str, str):
     """Transcribe audio file to VTT format"""
     transcribe_kwargs = {
         "audio": audio_data,

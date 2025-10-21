@@ -2,11 +2,14 @@ from pathlib import Path
 from typing import Optional
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Depends
 from fastapi.security import APIKeyHeader
-from fastapi.responses import PlainTextResponse, JSONResponse
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+
 import uvicorn
+import io
 
 from src.queue_manager import get_queue_manager
+from src.whisper_utils import whisper_transcribe
 from src.config import (
     DEBUG,
     SUPPORTED_AUDIO_FORMATS,
@@ -70,12 +73,29 @@ async def get_api_key(api_key: Optional[str] = Depends(api_key_header)):
 async def root():
     return 1
 
-
-@app.post("/transcribe/vtt", dependencies=[Depends(get_api_key)])
-async def transcribe_audio_vtt_only(
+@app.post("/transcribe", dependencies=[Depends(get_api_key)])
+async def transcribe(
     file: UploadFile = File(...), language: Optional[str] = Form(None)
 ):
-    """Submit a transcription job to the queue"""
+    file_extension = Path(file.filename).suffix.lower()
+    if file_extension not in SUPPORTED_AUDIO_FORMATS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file format. Supported formats: {', '.join(SUPPORTED_AUDIO_FORMATS)}",
+        )
+    
+    audio_data = await file.read()
+    audio_io = io.BytesIO(audio_data)
+    result, _ = whisper_transcribe(audio_io, language)
+    return JSONResponse(
+        content=result,
+        status_code=200,
+    )
+
+@app.post("/transcribe/async", dependencies=[Depends(get_api_key)])
+async def transcribe_async(
+    file: UploadFile = File(...), language: Optional[str] = Form(None)
+):
     file_extension = Path(file.filename).suffix.lower()
     if file_extension not in SUPPORTED_AUDIO_FORMATS:
         raise HTTPException(
@@ -84,18 +104,14 @@ async def transcribe_audio_vtt_only(
         )
 
     try:
-        # Read the audio file data
         audio_data = await file.read()
-        
-        # Submit job to queue
         queue_manager = get_queue_manager()
         job_id = await queue_manager.submit_job(audio_data, file.filename, language)
         
         return JSONResponse(
             content={
                 "job_id": job_id,
-                "status": "pending",
-                "message": "Job submitted successfully. Use /transcribe/status/{job_id} to check status."
+                "status": "pending"
             },
             status_code=202
         )
@@ -105,21 +121,8 @@ async def transcribe_audio_vtt_only(
         raise HTTPException(status_code=500, detail=f"Failed to submit job: {str(e)}")
 
 
-@app.get("/transcribe/status/{job_id}", dependencies=[Depends(get_api_key)])
-async def get_job_status(job_id: str):
-    """Get the status of a transcription job"""
-    queue_manager = get_queue_manager()
-    job_status = queue_manager.get_job_status(job_id)
-    
-    if not job_status:
-        raise HTTPException(status_code=404, detail="Job not found")
-    
-    return JSONResponse(content=job_status)
-
-
-@app.get("/transcribe/result/{job_id}", dependencies=[Depends(get_api_key)])
-async def get_job_result(job_id: str):
-    """Get the result of a completed transcription job as VTT"""
+@app.get("/transcribe/async/{job_id}", dependencies=[Depends(get_api_key)])
+async def transcribe_async_status(job_id: str):
     queue_manager = get_queue_manager()
     job_status = queue_manager.get_job_status(job_id)
     
@@ -127,15 +130,15 @@ async def get_job_result(job_id: str):
         raise HTTPException(status_code=404, detail="Job not found")
     
     if job_status["status"] == "pending":
-        raise HTTPException(status_code=202, detail="Job is still pending")
+        return JSONResponse(content=job_status, status_code=202)
     elif job_status["status"] == "processing":
-        raise HTTPException(status_code=202, detail="Job is still processing")
+        return JSONResponse(content=job_status, status_code=202)
     elif job_status["status"] == "failed":
-        raise HTTPException(status_code=500, detail=f"Job failed: {job_status.get('error', 'Unknown error')}")
+        return JSONResponse(content=job_status, status_code=500)
     elif job_status["status"] == "completed":
-        return PlainTextResponse(content=job_status["result"], media_type="text/plain")
+        return JSONResponse(content=job_status, status_code=200)
     
-    raise HTTPException(status_code=500, detail="Unknown job status")
+    return JSONResponse(content={"error": "Unknown job status"}, status_code=500)
 
 
 @app.get("/queue/info", dependencies=[Depends(get_api_key)])
