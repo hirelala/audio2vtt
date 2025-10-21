@@ -5,7 +5,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Depends
 from fastapi.security import APIKeyHeader
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.responses import RedirectResponse
 import uvicorn
 import io
 
@@ -68,9 +68,10 @@ async def get_api_key(api_key: Optional[str] = Depends(api_key_header)):
 
 @app.get("/")
 async def root():
-    return 1
+    return RedirectResponse("/docs")
+    
 
-@app.post("/transcribe", dependencies=[Depends(get_api_key)])
+@app.post("/vtt", dependencies=[Depends(get_api_key)])
 async def transcribe(
     file: UploadFile = File(...), language: Optional[str] = Form(None)
 ):
@@ -89,7 +90,7 @@ async def transcribe(
         status_code=200,
     )
 
-@app.post("/transcribe/async", dependencies=[Depends(get_api_key)])
+@app.post("/vtt/async", dependencies=[Depends(get_api_key)])
 async def transcribe_async(
     file: UploadFile = File(...), language: Optional[str] = Form(None)
 ):
@@ -118,7 +119,7 @@ async def transcribe_async(
         raise HTTPException(status_code=500, detail=f"Failed to submit job: {str(e)}")
 
 
-@app.get("/transcribe/async/{job_id}", dependencies=[Depends(get_api_key)])
+@app.get("/vtt/async/{job_id}", dependencies=[Depends(get_api_key)])
 async def transcribe_async_status(job_id: str):
     queue_manager = get_queue_manager()
     job_status = queue_manager.get_job_status(job_id)
@@ -138,7 +139,7 @@ async def transcribe_async_status(job_id: str):
     return JSONResponse(content={"error": "Unknown job status"}, status_code=500)
 
 
-@app.get("/queue/info", dependencies=[Depends(get_api_key)])
+@app.get("/queue", dependencies=[Depends(get_api_key)])
 async def get_queue_info():
     """Get information about the queue"""
     queue_manager = get_queue_manager()
