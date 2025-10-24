@@ -1,12 +1,36 @@
 {
     "tests": [
       {
-        "name": "validation_text_input",
+        "name": "validation_audio_with_language",
         "input": {
-          "text": "Hello world",
+          "audio": "//uQZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADhAC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7v///////////////////////////////////////////////////////8AAAA5TEFNRTMuMTAwBK8AAAAAAAAAABUgJAR4QgAAQAAAg4Q7fH2BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+          "filename": "test.mp3",
           "language": "en"
         },
-        "timeout": 10000
+        "timeout": 30000
+      },
+      {
+        "name": "validation_audio_auto_detect",
+        "input": {
+          "audio": "//uQZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADhAC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7v///////////////////////////////////////////////////////8AAAA5TEFNRTMuMTAwBK8AAAAAAAAAABUgJAR4QgAAQAAAg4Q7fH2BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+          "filename": "test.mp3"
+        },
+        "timeout": 30000
+      },
+      {
+        "name": "validation_error_no_audio",
+        "input": {
+          "filename": "test.mp3"
+        },
+        "timeout": 5000
+      },
+      {
+        "name": "validation_error_unsupported_format",
+        "input": {
+          "audio": "//uQZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADhAC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7v///////////////////////////////////////////////////////8AAAA5TEFNRTMuMTAwBK8AAAAAAAAAABUgJAR4QgAAQAAAg4Q7fH2BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+          "filename": "test.txt"
+        },
+        "timeout": 5000
       }
     ],
     "config": {
@@ -14,8 +38,24 @@
       "gpuCount": 1,
       "env": [
         {
-          "key": "ENV_KEY_HERE",
-          "value": "ENV_VALUE_HERE"
+          "key": "WHISPER_MODEL",
+          "value": "base"
+        },
+        {
+          "key": "WHISPER_DEVICE",
+          "value": "cuda"
+        },
+        {
+          "key": "WHISPER_COMPUTE_TYPE",
+          "value": "float16"
+        },
+        {
+          "key": "WHISPER_BEAM_SIZE",
+          "value": "5"
+        },
+        {
+          "key": "WHISPER_LOCAL_FILES_ONLY",
+          "value": "True"
         }
       ],
       "allowedCudaVersions": [
