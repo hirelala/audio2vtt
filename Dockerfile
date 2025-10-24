@@ -32,8 +32,7 @@ COPY uv.lock .
 
 RUN uv pip install --system -r pyproject.toml
 COPY src/ src/
-COPY rp_handler.py .
 
 EXPOSE 8000
 
-CMD ["python", "-u", "rp_handler.py"]
+CMD ["python", "-u", "src/rp_handler.py"]
