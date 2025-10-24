@@ -2,6 +2,8 @@
 
 A FastAPI-based REST API server that converts audio files to VTT subtitles using Fast Whisper.
 
+[![Runpod](https://api.runpod.io/badge/garylab/audio2vtt)](https://console.runpod.io/hub/garylab/audio2vtt)
+
 ## Features
 
 - 🎵 Support for multiple audio formats (MP3, WAV, M4A, FLAC, OGG, AAC)
