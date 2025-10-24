@@ -90,61 +90,6 @@ async def transcribe(
         status_code=200,
     )
 
-@app.post("/vtt/async", dependencies=[Depends(get_api_key)])
-async def transcribe_async(
-    file: UploadFile = File(...), language: Optional[str] = Form(None)
-):
-    file_extension = Path(file.filename).suffix.lower()
-    if file_extension not in SUPPORTED_AUDIO_FORMATS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Unsupported file format. Supported formats: {', '.join(SUPPORTED_AUDIO_FORMATS)}",
-        )
-
-    try:
-        audio_data = await file.read()
-        queue_manager = get_queue_manager()
-        job_id = await queue_manager.submit_job(audio_data, file.filename, language)
-        
-        return JSONResponse(
-            content={
-                "job_id": job_id,
-                "status": "pending"
-            },
-            status_code=202
-        )
-    except Exception as e:
-        if "Queue is full" in str(e):
-            raise HTTPException(status_code=503, detail="Server is busy. Please try again later.")
-        raise HTTPException(status_code=500, detail=f"Failed to submit job: {str(e)}")
-
-
-@app.get("/vtt/async/{job_id}", dependencies=[Depends(get_api_key)])
-async def transcribe_async_status(job_id: str):
-    queue_manager = get_queue_manager()
-    job_status = queue_manager.get_job_status(job_id)
-    
-    if not job_status:
-        raise HTTPException(status_code=404, detail="Job not found")
-    
-    if job_status["status"] == "pending":
-        return JSONResponse(content=job_status, status_code=202)
-    elif job_status["status"] == "processing":
-        return JSONResponse(content=job_status, status_code=202)
-    elif job_status["status"] == "failed":
-        return JSONResponse(content=job_status, status_code=500)
-    elif job_status["status"] == "completed":
-        return JSONResponse(content=job_status, status_code=200)
-    
-    return JSONResponse(content={"error": "Unknown job status"}, status_code=500)
-
-
-@app.get("/queue", dependencies=[Depends(get_api_key)])
-async def get_queue_info():
-    """Get information about the queue"""
-    queue_manager = get_queue_manager()
-    return JSONResponse(content=queue_manager.get_queue_info())
-
 
 if __name__ == "__main__":
     uvicorn.run("src.main:app", host="0.0.0.0", port=8000, reload=DEBUG)
