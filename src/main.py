@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Optional
-from contextlib import asynccontextmanager
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form, Depends
 from fastapi.security import APIKeyHeader
 from fastapi.responses import JSONResponse
@@ -9,7 +8,6 @@ from fastapi.responses import RedirectResponse
 import uvicorn
 import io
 
-from src.queue_manager import get_queue_manager
 from src.whisper_utils import whisper_transcribe
 from src.config import (
     DEBUG,
@@ -17,20 +15,10 @@ from src.config import (
     ADMIN_API_KEY,
 )
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    queue_manager = get_queue_manager()
-    await queue_manager.start()
-    yield
-    await queue_manager.stop()
-
-
 app = FastAPI(
     title="Audio to VTT API",
     description="Convert audio files to VTT subtitles using Fast Whisper",
     version="1.0.0",
-    lifespan=lifespan,
 )
 
 # Add CORS middleware to allow all origins

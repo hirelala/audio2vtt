@@ -27,10 +27,6 @@
         {
           "key": "WHISPER_BEAM_SIZE",
           "value": "5"
-        },
-        {
-          "key": "WHISPER_LOCAL_FILES_ONLY",
-          "value": "True"
         }
       ]
     }
