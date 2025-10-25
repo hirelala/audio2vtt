@@ -8,7 +8,7 @@ from fastapi.responses import RedirectResponse
 import uvicorn
 import io
 
-from src.whisper_utils import whisper_transcribe
+from src.whisper_utils import whisper_transcribe, detect_audio_format
 from src.config import SUPPORTED_AUDIO_FORMATS, API_ADMIN_KEY
 
 app = FastAPI(
@@ -59,14 +59,23 @@ async def root():
 async def transcribe(
     file: UploadFile = File(...), language: Optional[str] = Form(None)
 ):
-    file_extension = Path(file.filename).suffix.lower()
-    if file_extension not in SUPPORTED_AUDIO_FORMATS:
+    # Read audio data
+    audio_data = await file.read()
+    
+    # Detect actual audio format from the data
+    detected_format = detect_audio_format(audio_data)
+    if not detected_format:
         raise HTTPException(
             status_code=400,
-            detail=f"Unsupported file format. Supported formats: {', '.join(SUPPORTED_AUDIO_FORMATS)}",
+            detail="Could not detect audio format from the provided data. The file may be corrupted or in an unsupported format.",
         )
     
-    audio_data = await file.read()
+    if detected_format not in SUPPORTED_AUDIO_FORMATS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported audio format '{detected_format}'. Supported formats: {', '.join(SUPPORTED_AUDIO_FORMATS)}",
+        )
+    
     audio_io = io.BytesIO(audio_data)
     result, _ = whisper_transcribe(audio_io, language)
     return JSONResponse(

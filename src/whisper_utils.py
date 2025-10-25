@@ -1,5 +1,5 @@
 from faster_whisper import WhisperModel
-from typing import BinaryIO
+from typing import BinaryIO, Optional
 from src.config import (
     MODELS_DIR,
     WHISPER_DEVICE,
@@ -23,6 +23,46 @@ STOP_CHARS = set(
 )
 
 _whisper_model: WhisperModel = None
+
+
+def detect_audio_format(audio_data: bytes) -> Optional[str]:
+    """
+    Detect audio format from the actual audio data using magic bytes.
+    
+    Returns the file extension (with dot) or None if format cannot be detected.
+    """
+    # Check first few bytes for magic numbers
+    if len(audio_data) < 12:
+        return None
+    
+    # MP3: FF FB or FF F3 or FF F2 or ID3
+    if audio_data[:3] == b'ID3' or audio_data[:2] in (b'\xff\xfb', b'\xff\xf3', b'\xff\xf2'):
+        return '.mp3'
+    
+    # WAV: RIFF....WAVE
+    if audio_data[:4] == b'RIFF' and audio_data[8:12] == b'WAVE':
+        return '.wav'
+    
+    # OGG: OggS
+    if audio_data[:4] == b'OggS':
+        return '.ogg'
+    
+    # FLAC: fLaC
+    if audio_data[:4] == b'fLaC':
+        return '.flac'
+    
+    # M4A/MP4: ftyp
+    if audio_data[4:8] == b'ftyp':
+        # Check for M4A specific markers
+        if b'M4A' in audio_data[8:20] or b'mp42' in audio_data[8:20]:
+            return '.m4a'
+        return '.mp4'
+    
+    # WebM: 0x1A 0x45 0xDF 0xA3
+    if audio_data[:4] == b'\x1a\x45\xdf\xa3':
+        return '.webm'
+    
+    return None
 
 
 def get_whisper_model() -> WhisperModel:

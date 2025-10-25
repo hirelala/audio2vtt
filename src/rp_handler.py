@@ -4,7 +4,7 @@ import base64
 from pathlib import Path
 from typing import Optional
 
-from src.whisper_utils import whisper_transcribe
+from src.whisper_utils import whisper_transcribe, detect_audio_format
 from src.config import SUPPORTED_AUDIO_FORMATS
 
 
@@ -16,10 +16,11 @@ def handler(event):
     {
         "input": {
             "audio": "<base64_encoded_audio_data>",
-            "filename": "audio.mp3",
             "language": "en"  # optional
         }
     }
+    
+    Note: Audio format is automatically detected from the audio data itself.
     
     Returns:
     {
@@ -36,14 +37,6 @@ def handler(event):
         if not audio_base64:
             return {"error": "No audio data provided. Please provide 'audio' field with base64 encoded audio data."}
         
-        # Get filename and validate extension
-        filename = job_input.get("filename", "audio.mp3")
-        file_extension = Path(filename).suffix.lower()
-        if file_extension not in SUPPORTED_AUDIO_FORMATS:
-            return {
-                "error": f"Unsupported file format '{file_extension}'. Supported formats: {', '.join(SUPPORTED_AUDIO_FORMATS)}"
-            }
-        
         # Get optional language parameter
         language = job_input.get("language")
         
@@ -52,6 +45,16 @@ def handler(event):
             audio_data = base64.b64decode(audio_base64)
         except Exception as e:
             return {"error": f"Failed to decode base64 audio data: {str(e)}"}
+        
+        # Detect actual audio format from the data
+        detected_format = detect_audio_format(audio_data)
+        if not detected_format:
+            return {"error": "Could not detect audio format from the provided data. The file may be corrupted or in an unsupported format."}
+        
+        if detected_format not in SUPPORTED_AUDIO_FORMATS:
+            return {
+                "error": f"Unsupported audio format '{detected_format}'. Supported formats: {', '.join(SUPPORTED_AUDIO_FORMATS)}"
+            }
         
         # Create BytesIO object from audio data
         audio_io = io.BytesIO(audio_data)
