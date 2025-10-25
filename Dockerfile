@@ -33,6 +33,9 @@ COPY uv.lock .
 RUN uv pip install --system -r pyproject.toml
 COPY src/ src/
 
+# Default Whisper model to large-v3
+ARG WHISPER_MODEL=large-v3
+ENV WHISPER_MODEL=${WHISPER_MODEL}
 RUN python src/download_model.py
 
 CMD ["python", "-u", "src/rp_handler.py"]
