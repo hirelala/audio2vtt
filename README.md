@@ -56,14 +56,16 @@ curl -X POST "http://localhost:8000/vtt" \
 ### RunPod Serverless
 
 **Input:**
-```json
-{
+```bash
+curl -X POST "http://localhost:8000/vtt" \
+-H "Content-Type: application/json" \
+-d '{
   "input": {
     "audio": "<base64_encoded_audio>",
     "filename": "audio.mp3",
     "language": "en"
   }
-}
+}'
 ```
 
 **Output:**
