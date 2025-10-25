@@ -14,6 +14,12 @@ Convert audio files to VTT subtitles using Faster-Whisper. Supports FastAPI serv
 - ☁️ RunPod serverless deployment ready
 - 🔐 Optional API key authentication
 
+
+## Snapshots
+![](images/In-progress.png)
+
+![](images/Result.png)
+
 ## Quick Start
 
 ### Docker (Recommended)
