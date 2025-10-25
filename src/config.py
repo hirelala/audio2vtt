@@ -5,9 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # API Authentication
-ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
-
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+API_ADMIN_KEY = os.getenv("API_ADMIN_KEY", "")
 
 # Whisper Configuration
 WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
@@ -19,9 +17,6 @@ WHISPER_COMPUTE_TYPE = os.getenv("WHISPER_COMPUTE_TYPE", "int8")
 WHISPER_CPU_THREADS = int(os.getenv("WHISPER_CPU_THREADS", "4"))
 WHISPER_NUM_WORKERS = int(os.getenv("WHISPER_NUM_WORKERS", "1"))
 WHISPER_BEAM_SIZE = int(os.getenv("WHISPER_BEAM_SIZE", "5"))
-WHISPER_LOCAL_FILES_ONLY = (
-    os.getenv("WHISPER_LOCAL_FILES_ONLY", "False").lower() == "true"
-)
 
 
 # File paths

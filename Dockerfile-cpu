@@ -26,4 +26,6 @@ COPY src/ src/
 
 EXPOSE 8000
 
+RUN python src/download_model.py
+
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--log-level", "info"]

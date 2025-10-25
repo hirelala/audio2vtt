@@ -9,11 +9,7 @@ import uvicorn
 import io
 
 from src.whisper_utils import whisper_transcribe
-from src.config import (
-    DEBUG,
-    SUPPORTED_AUDIO_FORMATS,
-    ADMIN_API_KEY,
-)
+from src.config import SUPPORTED_AUDIO_FORMATS, API_ADMIN_KEY
 
 app = FastAPI(
     title="Audio to VTT API",
@@ -38,7 +34,7 @@ api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 async def get_api_key(api_key: Optional[str] = Depends(api_key_header)):
     """Get and validate API key"""
     # If no admin API key is set, skip authentication
-    if not ADMIN_API_KEY:
+    if not API_ADMIN_KEY:
         return None
 
     # If admin API key is set but no header provided
@@ -48,7 +44,7 @@ async def get_api_key(api_key: Optional[str] = Depends(api_key_header)):
         )
 
     # Verify the API key
-    if api_key != ADMIN_API_KEY:
+    if api_key != API_ADMIN_KEY:
         raise HTTPException(status_code=401, detail="Invalid API key")
 
     return api_key
@@ -80,4 +76,4 @@ async def transcribe(
 
 
 if __name__ == "__main__":
-    uvicorn.run("src.main:app", host="0.0.0.0", port=8000, reload=DEBUG)
+    uvicorn.run("src.main:app", host="0.0.0.0", port=8000)

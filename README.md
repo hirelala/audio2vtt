@@ -78,7 +78,7 @@ Key environment variables:
 | `WHISPER_DEVICE` | `cpu` | Device: cpu, cuda, metal |
 | `WHISPER_COMPUTE_TYPE` | `int8` | Compute type: int8, float16, float32 |
 | `WHISPER_BEAM_SIZE` | `5` | Beam size for decoding |
-| `ADMIN_API_KEY` | `` | API key (leave empty to disable auth) |
+| `API_ADMIN_KEY` | `` | API key (leave empty to disable auth) |
 
 See `.env` file for all options.
 

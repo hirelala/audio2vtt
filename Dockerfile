@@ -33,6 +33,6 @@ COPY uv.lock .
 RUN uv pip install --system -r pyproject.toml
 COPY src/ src/
 
-EXPOSE 8000
+RUN python src/download_model.py
 
 CMD ["python", "-u", "src/rp_handler.py"]

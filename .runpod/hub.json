@@ -1,6 +1,6 @@
 {
-    "title": "Audio to VTT subtitle",
-    "description": "Convert audio files to VTT subtitles using Fast Whisper",
+    "title": "Extract VTT subtitle from audio",
+    "description": "Extract VTT subtitle from audio using Faster-Whisper",
     "type": "serverless",
     "category": "audio",
     "iconUrl": "https://example.com/icon.png",
@@ -8,10 +8,6 @@
       "runsOn": "GPU",
       "containerDiskInGb": 10,
       "env": [
-        {
-          "key": "DEBUG",
-          "value": "False"
-        },
         {
           "key": "WHISPER_MODEL",
           "value": "large-v3"

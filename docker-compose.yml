@@ -2,7 +2,9 @@ services:
   audio2vtt-api:
     build:
       context: .
-      dockerfile: Dockerfile-gpu
+      dockerfile: Dockerfile
+      args:
+        WHISPER_MODEL: ${WHISPER_MODEL:-base}
     container_name: audio2vtt-api
     env_file:
       - .env
