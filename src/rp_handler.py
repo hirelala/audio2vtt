@@ -60,12 +60,12 @@ def handler(event):
         audio_io = io.BytesIO(audio_data)
         
         # Transcribe using whisper
-        vtt_content, plain_text = whisper_transcribe(audio_io, language)
+        vtt_content, word_count = whisper_transcribe(audio_io, language)
         
         # Return result
         return {
             "vtt": vtt_content,
-            "text": plain_text
+            "word_count": word_count
         }
         
     except Exception as e:

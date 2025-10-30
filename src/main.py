@@ -77,9 +77,12 @@ async def transcribe(
         )
     
     audio_io = io.BytesIO(audio_data)
-    result, _ = whisper_transcribe(audio_io, language)
+    result, word_count = whisper_transcribe(audio_io, language)
     return JSONResponse(
-        content=result,
+        content={
+            "vtt": result,
+            "word_count": word_count
+        },
         status_code=200,
     )
 

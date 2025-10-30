@@ -1,5 +1,7 @@
 from faster_whisper import WhisperModel
 from typing import BinaryIO, Optional
+
+from numpy._core.numerictypes import int16
 from src.config import (
     MODELS_DIR,
     WHISPER_DEVICE,
@@ -81,7 +83,7 @@ def get_whisper_model() -> WhisperModel:
     return _whisper_model
 
 
-def whisper_transcribe(audio_data: BinaryIO, language: str = None) -> (str, str):
+def whisper_transcribe(audio_data: BinaryIO, language: str = None) -> (str, int):
     transcribe_kwargs = {
         "audio": audio_data,
         "beam_size": WHISPER_BEAM_SIZE,
@@ -112,9 +114,9 @@ def whisper_transcribe(audio_data: BinaryIO, language: str = None) -> (str, str)
 
 def convert_to_subtitles(segments) -> (list, str):
     subtitles = []
-    subtitle_content = ""
+    word_count = 0
     for segment in segments:
-        subtitle_content += segment.text
+        word_count += len(segment.words)
         words_idx = 0
         words_len = len(segment.words)
 
@@ -167,7 +169,7 @@ def convert_to_subtitles(segments) -> (list, str):
                 {"msg": seg_text, "start_time": seg_start, "end_time": seg_end}
             )
 
-    return subtitles, subtitle_content
+    return subtitles, word_count
 
 
 def time_convert_seconds_to_hmsm(seconds) -> str:
