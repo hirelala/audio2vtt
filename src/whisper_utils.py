@@ -98,7 +98,7 @@ def whisper_transcribe(audio_data: BinaryIO, language: str = None) -> (str, int)
 
     segments, _ = get_whisper_model().transcribe(**transcribe_kwargs)
 
-    subtitles, sub_text = convert_to_subtitles(segments)
+    subtitles, word_count = convert_to_subtitles(segments)
 
     items = []
     for subtitle in subtitles:
@@ -109,10 +109,10 @@ def whisper_transcribe(audio_data: BinaryIO, language: str = None) -> (str, int)
             )
 
     vtt_content = "WEBVTT\n\n" + "\n".join(items)
-    return vtt_content, sub_text
+    return vtt_content, word_count
 
 
-def convert_to_subtitles(segments) -> (list, str):
+def convert_to_subtitles(segments) -> (list, int):
     subtitles = []
     word_count = 0
     for segment in segments:
