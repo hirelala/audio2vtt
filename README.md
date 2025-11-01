@@ -4,6 +4,7 @@ Convert audio files to subtitles (VTT, SRT) using Faster-Whisper.
 
 [![PyPI](https://img.shields.io/pypi/v/audio-subtitler.svg)](https://pypi.org/project/audio-subtitler/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/audio-subtitler.svg)](https://pypi.org/project/audio-subtitler/)
+[![Run on RunPod](https://img.shields.io/badge/Run%20on-RunPod-6b3cff?logo=runpod&logoColor=white)](https://runpod.io?ref=hh0mhml0)
 
 ## Features
 
