@@ -1,16 +1,52 @@
 [project]
 name = "audio-to-vtt"
 version = "0.1.0"
-description = "Add your description here"
+description = "Convert audio files to VTT subtitles using Faster-Whisper"
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-    "fastapi==0.104.1",
-    "faster-whisper==1.2.0",
-    "pydantic==2.5.0",
-    "python-dotenv>=1.1.1",
-    "python-multipart==0.0.6",
-    "uvicorn>=0.35.0",
-    "requests>=2.31.0",
-    "runpod>=1.7.13",
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Gary Lab"},
 ]
+keywords = ["audio", "transcription", "vtt", "subtitles", "whisper", "speech-to-text", "webvtt"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    "faster-whisper>=1.0.0",
+]
+
+[project.optional-dependencies]
+runpod = [
+    "runpod>=1.7.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/garylab/audio-to-vtt"
+Documentation = "https://github.com/garylab/audio-to-vtt#readme"
+Repository = "https://github.com/garylab/audio-to-vtt"
+Issues = "https://github.com/garylab/audio-to-vtt/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]

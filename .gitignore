@@ -1,15 +1,49 @@
-.venv/
-venv/
-*.pyc
+# Python
 __pycache__/
-.env
-.DS_Store
-.idea/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# IDE
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+
+# Testing
 .pytest_cache/
-.ruff_cache/
-.mypy_cache/
 .coverage
-temp/
-uploads/
-models/
+htmlcov/
+
+# Models (large files)
+models/*/
+
+# Temporary files
+*.tmp
+*.log

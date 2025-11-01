@@ -35,7 +35,11 @@ COPY src/ src/
 
 # Default Whisper model to large-v3
 ARG WHISPER_MODEL=large-v3
+ARG WHISPER_DEVICE=cuda
 ENV WHISPER_MODEL=${WHISPER_MODEL}
-RUN python src/download_model.py
+ENV WHISPER_DEVICE=${WHISPER_DEVICE}
 
-CMD ["python", "-u", "src/rp_handler.py"]
+# Download model while building the image
+RUN python src/runpod_handler.py
+
+CMD ["python", "-u", "src/runpod_handler.py"]

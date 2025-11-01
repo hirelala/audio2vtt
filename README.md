@@ -1,8 +1,10 @@
-# Audio to VTT API
+# Audio2VTT
 
-Convert audio files to VTT subtitles using Faster-Whisper. Supports FastAPI server and RunPod serverless deployment.
+Convert audio files to VTT subtitles using Faster-Whisper.
 
 [![Runpod](https://api.runpod.io/badge/garylab/audio2vtt)](https://console.runpod.io/hub/garylab/audio2vtt)
+[![PyPI](https://img.shields.io/pypi/v/audio2vtt.svg)](https://pypi.org/project/audio2vtt/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/audio2vtt.svg)](https://pypi.org/project/audio2vtt/)
 
 ## Features
 
@@ -12,73 +14,116 @@ Convert audio files to VTT subtitles using Faster-Whisper. Supports FastAPI serv
 - 🔧 Configurable models and settings
 - 🐳 Docker support (CPU/GPU)
 - ☁️ RunPod serverless deployment ready
-- 🔐 Optional API key authentication
 
+## Installation
 
-## Snapshots
-![](images/In-progress.png)
+```bash
+pip install audio2vtt
+```
 
-![](images/Result.png)
+With RunPod support:
+
+```bash
+pip install audio2vtt[runpod]
+```
+
+For development:
+
+```bash
+pip install audio2vtt[dev]
+```
 
 ## Quick Start
 
-### Docker (Recommended)
+### Basic Usage
+
+```python
+from audio2vtt import Audio2VTT
+
+converter = Audio2VTT(
+    model_size_or_path="base",
+    device="cpu",
+    compute_type="int8"
+)
+
+vtt_content, word_count = converter.transcribe("audio.mp3", language="en")
+print(vtt_content)
+print(f"Transcribed {word_count} words")
+```
+
+### Transcribe from File Object
+
+```python
+with open("audio.mp3", "rb") as audio_file:
+    vtt_content, word_count = converter.transcribe(audio_file)
+```
+
+### Save to File
+
+```python
+word_count = converter.transcribe_to_file(
+    "audio.mp3",
+    "output.vtt",
+    language="en"
+)
+```
+
+### Advanced Configuration
+
+```python
+converter = Audio2VTT(
+    model_size_or_path="large-v3",
+    device="cuda",
+    compute_type="float16",
+    cpu_threads=8,
+    num_workers=4,
+    download_root="./models"
+)
+
+vtt_content, word_count = converter.transcribe(
+    "audio.mp3",
+    language="en",
+    beam_size=5,
+    vad_filter=True,
+    vad_parameters={"min_silence_duration_ms": 500}
+)
+```
+
+## RunPod Serverless
+
+Deploy with Docker:
 
 ```bash
-# CPU version
 docker-compose up
+```
 
-# GPU version
+For GPU:
+
+```bash
 docker-compose -f docker-compose-gpu.yml up
 ```
 
-### Local Installation
-
-```bash
-pip install -r pyproject.toml
-python src/main.py
-```
-
-Server runs on `http://localhost:8000`. Visit `/docs` for interactive API documentation.
-
-## API Usage
-
-### FastAPI Endpoints
-
-**POST** `/vtt` - Transcribe audio file
-```bash
-curl -X POST "http://localhost:8000/vtt" \
-  -H "X-API-Key: your-key" \
-  -F "file=@audio.mp3" \
-  -F "language=en"
-```
-
-### RunPod Serverless
-
 **Input:**
-```bash
-curl -X POST "http://localhost:8000/vtt" \
--H "Content-Type: application/json" \
--d '{
+```json
+{
   "input": {
     "audio": "<base64_encoded_audio>",
-    "filename": "audio.mp3",
     "language": "en"
   }
-}'
+}
 ```
 
 **Output:**
 ```json
 {
   "vtt": "WEBVTT\n\n00:00:00.000 --> ...",
-  "text": "Plain text transcription"
+  "word_count": 150
 }
 ```
 
 ## Configuration
 
-Key environment variables:
+Environment variables:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -86,9 +131,6 @@ Key environment variables:
 | `WHISPER_DEVICE` | `cpu` | Device: cpu, cuda, metal |
 | `WHISPER_COMPUTE_TYPE` | `int8` | Compute type: int8, float16, float32 |
 | `WHISPER_BEAM_SIZE` | `5` | Beam size for decoding |
-| `API_ADMIN_KEY` | `` | API key (leave empty to disable auth) |
-
-See `.env` file for all options.
 
 ## Supported Languages
 
@@ -101,6 +143,17 @@ WEBVTT
 
 00:00:00.000 --> 00:00:03.500
 Hello, this is a test transcription.
+
+00:00:03.500 --> 00:00:07.200
+The audio is converted to text with timestamps.
+```
+
+## Publishing to PyPI
+
+```bash
+pip install build twine
+python -m build
+python -m twine upload dist/*
 ```
 
 ## License
