@@ -35,43 +35,61 @@ pip install audio2vtt[dev]
 
 ## Quick Start
 
-### Basic Usage
+### Command Line Interface
+
+After installation, you can use the `audiotovtt` command:
+
+```bash
+# Basic usage - output to stdout
+audiotovtt input.mp3 > output.vtt
+
+# Specify output file directly
+audiotovtt input.mp3 -o output.vtt
+
+# Use a different model
+audiotovtt input.mp3 --model large-v2 > output.vtt
+
+# Specify language
+audiotovtt input.mp3 --language en > output.vtt
+
+# Use GPU
+audiotovtt input.mp3 --device cuda > output.vtt
+
+# Quiet mode (suppress progress messages)
+audiotovtt input.mp3 --quiet > output.vtt
+
+# Show all options
+audiotovtt --help
+```
+
+### Python API
 
 ```python
-from audio2vtt import Audio2VTT
+from audio2vtt import AudioToVTT
 
-converter = Audio2VTT(
+converter = AudioToVTT(
     model_size_or_path="base",
     device="cpu",
     compute_type="int8"
 )
 
-vtt_content, word_count = converter.transcribe("audio.mp3", language="en")
-print(vtt_content)
-print(f"Transcribed {word_count} words")
+result = converter.transcribe("audio.mp3", language="en")
+print(result["vtt"])
+print(f"Transcribed {result['word_count']} words")
 ```
 
 ### Transcribe from File Object
 
 ```python
 with open("audio.mp3", "rb") as audio_file:
-    vtt_content, word_count = converter.transcribe(audio_file)
-```
-
-### Save to File
-
-```python
-word_count = converter.transcribe_to_file(
-    "audio.mp3",
-    "output.vtt",
-    language="en"
-)
+    result = converter.transcribe(audio_file)
+    print(result["vtt"])
 ```
 
 ### Advanced Configuration
 
 ```python
-converter = Audio2VTT(
+converter = AudioToVTT(
     model_size_or_path="large-v3",
     device="cuda",
     compute_type="float16",
@@ -80,13 +98,16 @@ converter = Audio2VTT(
     download_root="./models"
 )
 
-vtt_content, word_count = converter.transcribe(
+result = converter.transcribe(
     "audio.mp3",
     language="en",
     beam_size=5,
     vad_filter=True,
     vad_parameters={"min_silence_duration_ms": 500}
 )
+
+print(f"VTT content: {result['vtt']}")
+print(f"Word count: {result['word_count']}")
 ```
 
 ## RunPod Serverless

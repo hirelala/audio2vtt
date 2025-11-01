@@ -1,6 +1,6 @@
 [project]
 name = "audio-to-vtt"
-version = "0.1.0"
+version = "1.0.0"
 description = "Convert audio files to VTT subtitles using Faster-Whisper"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -26,6 +26,9 @@ classifiers = [
 dependencies = [
     "faster-whisper>=1.0.0",
 ]
+
+[project.scripts]
+audiotovtt = "src.cli:main"
 
 [project.optional-dependencies]
 runpod = [
