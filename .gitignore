@@ -42,7 +42,7 @@ env/
 htmlcov/
 
 # Models (large files)
-models/*/
+models/
 
 # Temporary files
 *.tmp

@@ -20,20 +20,21 @@ Examples:
   # Basic usage - VTT output to stdout
   audiosubtitler input.mp3 > output.vtt
   
-  # Generate SRT format
+  # Auto-detect format from extension
+  audiosubtitler input.mp3 -o output.srt  # Automatically uses SRT format
+  audiosubtitler input.mp3 -o output.vtt  # Automatically uses VTT format
+  
+  # Explicit format specification
   audiosubtitler input.mp3 --format srt > output.srt
   
-  # Specify output file
-  audiosubtitler input.mp3 -o output.vtt
-  
   # Use a different model
-  audiosubtitler input.mp3 --model large-v2 > output.vtt
+  audiosubtitler input.mp3 --model large-v2 -o output.vtt
   
   # Specify language
-  audiosubtitler input.mp3 --language en > output.vtt
+  audiosubtitler input.mp3 --language en -o output.vtt
   
   # Use GPU
-  audiosubtitler input.mp3 --device cuda > output.vtt
+  audiosubtitler input.mp3 --device cuda -o output.vtt
         """,
     )
     
@@ -141,6 +142,14 @@ Examples:
     
     args = parser.parse_args()
     
+    # Auto-detect format from output file extension
+    if args.output:
+        output_ext = Path(args.output).suffix.lower()
+        if output_ext == ".srt":
+            args.format = "srt"
+        elif output_ext == ".vtt":
+            args.format = "vtt"
+    
     # Validate input file
     input_path = Path(args.input)
     if not input_path.exists():
@@ -182,13 +191,8 @@ Examples:
         
         # Transcribe
         result = converter.transcribe(args.input, **transcribe_kwargs)
+        content = result["content"]
         word_count = result["word_count"]
-        
-        # Get the content based on format
-        if args.format == "vtt":
-            content = result["vtt"]
-        else:  # srt
-            content = result["srt"]
         
         if not args.quiet:
             print(f"Transcription complete: {word_count} words", file=sys.stderr)

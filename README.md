@@ -10,6 +10,7 @@ Convert audio files to subtitles (VTT, SRT) using Faster-Whisper.
 - 🎵 Multiple audio formats (MP3, WAV, M4A, FLAC, OGG, AAC)
 - 🚀 Fast transcription with Faster-Whisper
 - 📝 Multiple subtitle formats: VTT (WebVTT) and SRT
+- 🎯 Smart format auto-detection from file extension
 - 🔧 Configurable models and settings
 - 🐳 Docker support (CPU/GPU)
 - ☁️ RunPod serverless deployment ready
@@ -43,26 +44,27 @@ After installation, you can use the `audiosubtitler` command (or the shorter `au
 # Basic usage - VTT output to stdout
 audiosubtitler input.mp3 > output.vtt
 
-# Generate SRT format
+# Auto-detect format from file extension (recommended!)
+audiosubtitler input.mp3 -o output.srt  # Automatically uses SRT format
+audiosubtitler input.mp3 -o output.vtt  # Automatically uses VTT format
+
+# Explicit format specification
 audiosubtitler input.mp3 --format srt > output.srt
 
-# Specify output file directly
-audiosubtitler input.mp3 -o output.vtt
-
 # Use a different model
-audiosubtitler input.mp3 --model large-v2 > output.vtt
+audiosubtitler input.mp3 --model large-v2 -o output.vtt
 
 # Specify language
-audiosubtitler input.mp3 --language en > output.vtt
+audiosubtitler input.mp3 --language en -o output.vtt
 
 # Use GPU
-audiosubtitler input.mp3 --device cuda > output.vtt
+audiosubtitler input.mp3 --device cuda -o output.vtt
 
 # Quiet mode (suppress progress messages)
-audiosubtitler input.mp3 --quiet > output.vtt
+audiosubtitler input.mp3 --quiet -o output.vtt
 
 # Using the shorter command
-audiosub input.mp3 --format srt -o output.srt
+audiosub input.mp3 -o output.srt
 
 # Show all options
 audiosubtitler --help
@@ -82,12 +84,13 @@ converter = AudioSubtitler(
 
 # Generate VTT subtitles
 result = converter.transcribe("audio.mp3", format="vtt", language="en")
-print(result["vtt"])
+print(result["content"])
+print(f"Format: {result['format']}")
 print(f"Transcribed {result['word_count']} words")
 
 # Generate SRT subtitles
 result = converter.transcribe("audio.mp3", format="srt", language="en")
-print(result["srt"])
+print(result["content"])
 ```
 
 ### Transcribe from File Object
@@ -96,11 +99,11 @@ print(result["srt"])
 with open("audio.mp3", "rb") as audio_file:
     # VTT format
     result = converter.transcribe(audio_file, format="vtt")
-    print(result["vtt"])
+    print(result["content"])
     
     # SRT format
     result = converter.transcribe(audio_file, format="srt")
-    print(result["srt"])
+    print(result["content"])
 ```
 
 ### Advanced Configuration
@@ -125,7 +128,8 @@ result = converter.transcribe(
     vad_parameters={"min_silence_duration_ms": 500}
 )
 
-print(f"Subtitle content: {result['srt']}")  # or result['vtt']
+print(f"Content: {result['content']}")
+print(f"Format: {result['format']}")
 print(f"Word count: {result['word_count']}")
 ```
 
@@ -148,7 +152,8 @@ docker-compose -f docker-compose-gpu.yml up
 {
   "input": {
     "audio": "<base64_encoded_audio>",
-    "language": "en"
+    "language": "en",
+    "format": "vtt"
   }
 }
 ```
@@ -156,7 +161,8 @@ docker-compose -f docker-compose-gpu.yml up
 **Output:**
 ```json
 {
-  "vtt": "WEBVTT\n\n00:00:00.000 --> ...",
+  "content": "WEBVTT\n\n00:00:00.000 --> ...",
+  "format": "vtt",
   "word_count": 150
 }
 ```

@@ -51,7 +51,8 @@ class TestCLI:
         mock_audio_subtitler_class.return_value = mock_converter
         
         mock_converter.transcribe.return_value = {
-            "vtt": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nTest\n",
+            "content": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nTest\n",
+            "format": "vtt",
             "word_count": 1
         }
         
@@ -90,7 +91,8 @@ class TestCLI:
         mock_audio_subtitler_class.return_value = mock_converter
         
         mock_converter.transcribe.return_value = {
-            "vtt": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nTest\n",
+            "content": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nTest\n",
+            "format": "vtt",
             "word_count": 1
         }
         
@@ -116,7 +118,8 @@ class TestCLI:
         mock_audio_subtitler_class.return_value = mock_converter
         
         mock_converter.transcribe.return_value = {
-            "vtt": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nTest\n",
+            "content": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nTest\n",
+            "format": "vtt",
             "word_count": 1
         }
         
@@ -151,7 +154,8 @@ class TestCLI:
         mock_audio_subtitler_class.return_value = mock_converter
         
         mock_converter.transcribe.return_value = {
-            "vtt": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nTest\n",
+            "content": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nTest\n",
+            "format": "vtt",
             "word_count": 1
         }
         
@@ -182,7 +186,8 @@ class TestCLI:
         mock_audio_subtitler_class.return_value = mock_converter
         
         mock_converter.transcribe.return_value = {
-            "vtt": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nTest\n",
+            "content": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nTest\n",
+            "format": "vtt",
             "word_count": 1
         }
         
@@ -207,7 +212,8 @@ class TestCLI:
         mock_audio_subtitler_class.return_value = mock_converter
         
         mock_converter.transcribe.return_value = {
-            "vtt": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nTest\n",
+            "content": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nTest\n",
+            "format": "vtt",
             "word_count": 1
         }
         
@@ -255,7 +261,8 @@ class TestCLI:
         mock_audio_subtitler_class.return_value = mock_converter
         
         mock_converter.transcribe.return_value = {
-            "srt": "1\n00:00:00,000 --> 00:00:01,000\nTest\n",
+            "content": "1\n00:00:00,000 --> 00:00:01,000\nTest\n",
+            "format": "srt",
             "word_count": 1
         }
         
@@ -269,6 +276,81 @@ class TestCLI:
         captured = capsys.readouterr()
         assert "00:00:00,000" in captured.out
         assert "1\n" in captured.out
+
+    @patch('src.cli.AudioSubtitler')
+    @patch('pathlib.Path.exists')
+    @patch('pathlib.Path.is_file')
+    @patch('pathlib.Path.write_text')
+    @patch('sys.argv', ['audiosubtitler', 'test.mp3', '-o', 'output.srt'])
+    def test_auto_detect_srt_from_extension(self, mock_write_text, mock_is_file, mock_exists, mock_audio_subtitler_class, capsys):
+        """Test auto-detection of SRT format from file extension"""
+        mock_exists.return_value = True
+        mock_is_file.return_value = True
+        
+        mock_converter = MagicMock()
+        mock_audio_subtitler_class.return_value = mock_converter
+        
+        mock_converter.transcribe.return_value = {
+            "content": "1\n00:00:00,000 --> 00:00:01,000\nTest\n",
+            "format": "srt",
+            "word_count": 1
+        }
+        
+        main()
+        
+        # Verify format was auto-detected as srt
+        call_kwargs = mock_converter.transcribe.call_args[1]
+        assert call_kwargs["format"] == "srt"
+
+    @patch('src.cli.AudioSubtitler')
+    @patch('pathlib.Path.exists')
+    @patch('pathlib.Path.is_file')
+    @patch('pathlib.Path.write_text')
+    @patch('sys.argv', ['audiosubtitler', 'test.mp3', '-o', 'output.vtt'])
+    def test_auto_detect_vtt_from_extension(self, mock_write_text, mock_is_file, mock_exists, mock_audio_subtitler_class, capsys):
+        """Test auto-detection of VTT format from file extension"""
+        mock_exists.return_value = True
+        mock_is_file.return_value = True
+        
+        mock_converter = MagicMock()
+        mock_audio_subtitler_class.return_value = mock_converter
+        
+        mock_converter.transcribe.return_value = {
+            "content": "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nTest\n",
+            "format": "vtt",
+            "word_count": 1
+        }
+        
+        main()
+        
+        # Verify format was auto-detected as vtt
+        call_kwargs = mock_converter.transcribe.call_args[1]
+        assert call_kwargs["format"] == "vtt"
+
+    @patch('src.cli.AudioSubtitler')
+    @patch('pathlib.Path.exists')
+    @patch('pathlib.Path.is_file')
+    @patch('pathlib.Path.write_text')
+    @patch('sys.argv', ['audiosubtitler', 'test.mp3', '-o', 'output.SRT'])
+    def test_auto_detect_case_insensitive(self, mock_write_text, mock_is_file, mock_exists, mock_audio_subtitler_class, capsys):
+        """Test auto-detection is case-insensitive"""
+        mock_exists.return_value = True
+        mock_is_file.return_value = True
+        
+        mock_converter = MagicMock()
+        mock_audio_subtitler_class.return_value = mock_converter
+        
+        mock_converter.transcribe.return_value = {
+            "content": "1\n00:00:00,000 --> 00:00:01,000\nTest\n",
+            "format": "srt",
+            "word_count": 1
+        }
+        
+        main()
+        
+        # Verify format was auto-detected despite uppercase extension
+        call_kwargs = mock_converter.transcribe.call_args[1]
+        assert call_kwargs["format"] == "srt"
 
 
 if __name__ == "__main__":

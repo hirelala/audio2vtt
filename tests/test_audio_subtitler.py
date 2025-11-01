@@ -220,10 +220,12 @@ class TestAudioSubtitler:
         assert call_kwargs["vad_parameters"] == {"min_silence_duration_ms": 500}
         
         # Verify result structure
-        assert "vtt" in result
+        assert "content" in result
+        assert "format" in result
         assert "word_count" in result
         assert result["word_count"] == 2
-        assert result["vtt"].startswith("WEBVTT\n\n")
+        assert result["format"] == "vtt"
+        assert result["content"].startswith("WEBVTT\n\n")
 
     @patch('src.audio_subtitler.WhisperModel')
     def test_transcribe_custom_params(self, mock_whisper_model):
@@ -288,7 +290,7 @@ class TestAudioSubtitler:
         converter = AudioSubtitler(model_size_or_path="base")
         result = converter.transcribe("test.mp3")
         
-        vtt = result["vtt"]
+        vtt = result["content"]
         
         # Check VTT header
         assert vtt.startswith("WEBVTT\n\n")
@@ -313,8 +315,10 @@ class TestAudioSubtitler:
         audio_array = np.zeros(16000, dtype=np.float32)
         result = converter.transcribe(audio_array)
         
-        assert "vtt" in result
+        assert "content" in result
+        assert "format" in result
         assert "word_count" in result
+        assert result["format"] == "vtt"
 
     @patch('src.audio_subtitler.WhisperModel')
     def test_transcribe_multiple_segments(self, mock_whisper_model):
@@ -334,7 +338,7 @@ class TestAudioSubtitler:
         result = converter.transcribe("test.mp3")
         
         assert result["word_count"] == 4
-        vtt = result["vtt"]
+        vtt = result["content"]
         assert "First sentence" in vtt
         assert "Second sentence" in vtt
 
@@ -389,11 +393,13 @@ class TestAudioSubtitler:
         result = converter.transcribe("test.mp3", format="srt")
         
         # Verify result structure
-        assert "srt" in result
+        assert "content" in result
+        assert "format" in result
         assert "word_count" in result
         assert result["word_count"] == 2
+        assert result["format"] == "srt"
         
-        srt = result["srt"]
+        srt = result["content"]
         
         # Check SRT format (uses comma, has index)
         assert "1\n" in srt
@@ -414,17 +420,19 @@ class TestAudioSubtitler:
         
         # Get VTT format
         vtt_result = converter.transcribe("test.mp3", format="vtt")
-        assert "vtt" in vtt_result
-        assert "WEBVTT" in vtt_result["vtt"]
-        assert "00:00:00.000" in vtt_result["vtt"]  # Period separator
+        assert "content" in vtt_result
+        assert vtt_result["format"] == "vtt"
+        assert "WEBVTT" in vtt_result["content"]
+        assert "00:00:00.000" in vtt_result["content"]  # Period separator
         
         # Get SRT format
         mock_model_instance.transcribe.return_value = ([segment], None)
         srt_result = converter.transcribe("test.mp3", format="srt")
-        assert "srt" in srt_result
-        assert "1\n" in srt_result["srt"]  # Index
-        assert "00:00:00,000" in srt_result["srt"]  # Comma separator
-        assert "WEBVTT" not in srt_result["srt"]
+        assert "content" in srt_result
+        assert srt_result["format"] == "srt"
+        assert "1\n" in srt_result["content"]  # Index
+        assert "00:00:00,000" in srt_result["content"]  # Comma separator
+        assert "WEBVTT" not in srt_result["content"]
 
 
 if __name__ == "__main__":
