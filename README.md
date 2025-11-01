@@ -155,30 +155,6 @@ The audio is converted to text with timestamps.
 | `WHISPER_COMPUTE_TYPE` | `int8` | Compute type |
 | `WHISPER_BEAM_SIZE` | `5` | Beam size |
 
-## Development
-
-### Running Tests
-
-```bash
-pip install -e .[dev]
-pytest tests/ -v
-```
-
-### Publishing to PyPI
-
-This project uses GitHub Actions for automated publishing:
-
-1. **Set up PyPI Token** (one-time setup):
-   - Create API token at https://pypi.org/manage/account/token/
-   - Add to GitHub repository secrets as `PYPI_TOKEN`
-
-2. **Create and push a tag**:
-   ```bash
-   git tag 0.1.0
-   git push origin 0.1.0
-   ```
-
-The workflow will automatically build and publish to PyPI.
 
 ## License
 
