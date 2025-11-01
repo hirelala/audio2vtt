@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Command-line interface for audio-to-vtt."""
+"""Command-line interface for audio-subtitler."""
 
 import sys
 import argparse
 from pathlib import Path
 
-from src.audio_to_vtt import AudioToVTT
+from src.audio_subtitler import AudioSubtitler
 
 __version__ = "0.1.0"
 
@@ -13,24 +13,27 @@ __version__ = "0.1.0"
 def main():
     """Main entry point for the CLI."""
     parser = argparse.ArgumentParser(
-        description="Convert audio files to VTT subtitle format using Whisper",
+        description="Convert audio files to subtitle format (VTT, SRT) using Whisper",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Basic usage - output to stdout
-  audiotovtt input.mp3 > output.vtt
+  # Basic usage - VTT output to stdout
+  audiosubtitler input.mp3 > output.vtt
+  
+  # Generate SRT format
+  audiosubtitler input.mp3 --format srt > output.srt
   
   # Specify output file
-  audiotovtt input.mp3 -o output.vtt
+  audiosubtitler input.mp3 -o output.vtt
   
   # Use a different model
-  audiotovtt input.mp3 --model large-v2 > output.vtt
+  audiosubtitler input.mp3 --model large-v2 > output.vtt
   
   # Specify language
-  audiotovtt input.mp3 --language en > output.vtt
+  audiosubtitler input.mp3 --language en > output.vtt
   
   # Use GPU
-  audiotovtt input.mp3 --device cuda > output.vtt
+  audiosubtitler input.mp3 --device cuda > output.vtt
         """,
     )
     
@@ -44,7 +47,15 @@ Examples:
         "-o", "--output",
         type=str,
         default=None,
-        help="Output VTT file path (if not specified, outputs to stdout)",
+        help="Output subtitle file path (if not specified, outputs to stdout)",
+    )
+    
+    parser.add_argument(
+        "-f", "--format",
+        type=str,
+        default="vtt",
+        choices=["vtt", "srt"],
+        help="Subtitle format (default: vtt)",
     )
     
     parser.add_argument(
@@ -146,7 +157,7 @@ Examples:
     
     try:
         # Initialize the converter
-        converter = AudioToVTT(
+        converter = AudioSubtitler(
             model_size_or_path=args.model,
             device=args.device,
             device_index=args.device_index,
@@ -161,6 +172,7 @@ Examples:
         
         # Prepare transcription kwargs
         transcribe_kwargs = {
+            "format": args.format,
             "beam_size": args.beam_size,
             "vad_filter": not args.no_vad,
         }
@@ -170,8 +182,13 @@ Examples:
         
         # Transcribe
         result = converter.transcribe(args.input, **transcribe_kwargs)
-        vtt_content = result["vtt"]
         word_count = result["word_count"]
+        
+        # Get the content based on format
+        if args.format == "vtt":
+            content = result["vtt"]
+        else:  # srt
+            content = result["srt"]
         
         if not args.quiet:
             print(f"Transcription complete: {word_count} words", file=sys.stderr)
@@ -179,12 +196,12 @@ Examples:
         # Output to file or stdout
         if args.output:
             output_path = Path(args.output)
-            output_path.write_text(vtt_content, encoding="utf-8")
+            output_path.write_text(content, encoding="utf-8")
             if not args.quiet:
                 print(f"Output written to: {args.output}", file=sys.stderr)
         else:
             # Output to stdout for piping
-            print(vtt_content, end="")
+            print(content, end="")
     
     except KeyboardInterrupt:
         print("\nInterrupted by user", file=sys.stderr)

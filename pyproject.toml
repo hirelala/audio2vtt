@@ -1,14 +1,14 @@
 [project]
-name = "audio-to-vtt"
-version = "1.0.0"
-description = "Convert audio files to VTT subtitles using Faster-Whisper"
+name = "audio-subtitler"
+version = "0.1.0"
+description = "Convert audio files to subtitles (VTT, SRT) using Faster-Whisper"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
 authors = [
     {name = "Gary Lab"},
 ]
-keywords = ["audio", "transcription", "vtt", "subtitles", "whisper", "speech-to-text", "webvtt"]
+keywords = ["audio", "transcription", "vtt", "srt", "subtitles", "whisper", "speech-to-text", "webvtt"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -28,7 +28,8 @@ dependencies = [
 ]
 
 [project.scripts]
-audiotovtt = "src.cli:main"
+audiosubtitler = "src.cli:main"
+audiosub = "src.cli:main"
 
 [project.optional-dependencies]
 runpod = [

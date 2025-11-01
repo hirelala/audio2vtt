@@ -1,95 +1,112 @@
-# Audio2VTT
+# Audio Subtitler
 
-Convert audio files to VTT subtitles using Faster-Whisper.
+Convert audio files to subtitles (VTT, SRT) using Faster-Whisper.
 
-[![Runpod](https://api.runpod.io/badge/garylab/audio2vtt)](https://console.runpod.io/hub/garylab/audio2vtt)
-[![PyPI](https://img.shields.io/pypi/v/audio2vtt.svg)](https://pypi.org/project/audio2vtt/)
-[![Python Versions](https://img.shields.io/pypi/pyversions/audio2vtt.svg)](https://pypi.org/project/audio2vtt/)
+[![PyPI](https://img.shields.io/pypi/v/audio-subtitler.svg)](https://pypi.org/project/audio-subtitler/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/audio-subtitler.svg)](https://pypi.org/project/audio-subtitler/)
 
 ## Features
 
 - 🎵 Multiple audio formats (MP3, WAV, M4A, FLAC, OGG, AAC)
 - 🚀 Fast transcription with Faster-Whisper
-- 📝 VTT (WebVTT) format output with timestamps
+- 📝 Multiple subtitle formats: VTT (WebVTT) and SRT
 - 🔧 Configurable models and settings
 - 🐳 Docker support (CPU/GPU)
 - ☁️ RunPod serverless deployment ready
+- 💻 Simple CLI and Python API
 
 ## Installation
 
 ```bash
-pip install audio2vtt
+pip install audio-subtitler
 ```
 
 With RunPod support:
 
 ```bash
-pip install audio2vtt[runpod]
+pip install audio-subtitler[runpod]
 ```
 
 For development:
 
 ```bash
-pip install audio2vtt[dev]
+pip install audio-subtitler[dev]
 ```
 
 ## Quick Start
 
 ### Command Line Interface
 
-After installation, you can use the `audiotovtt` command:
+After installation, you can use the `audiosubtitler` command (or the shorter `audiosub`):
 
 ```bash
-# Basic usage - output to stdout
-audiotovtt input.mp3 > output.vtt
+# Basic usage - VTT output to stdout
+audiosubtitler input.mp3 > output.vtt
+
+# Generate SRT format
+audiosubtitler input.mp3 --format srt > output.srt
 
 # Specify output file directly
-audiotovtt input.mp3 -o output.vtt
+audiosubtitler input.mp3 -o output.vtt
 
 # Use a different model
-audiotovtt input.mp3 --model large-v2 > output.vtt
+audiosubtitler input.mp3 --model large-v2 > output.vtt
 
 # Specify language
-audiotovtt input.mp3 --language en > output.vtt
+audiosubtitler input.mp3 --language en > output.vtt
 
 # Use GPU
-audiotovtt input.mp3 --device cuda > output.vtt
+audiosubtitler input.mp3 --device cuda > output.vtt
 
 # Quiet mode (suppress progress messages)
-audiotovtt input.mp3 --quiet > output.vtt
+audiosubtitler input.mp3 --quiet > output.vtt
+
+# Using the shorter command
+audiosub input.mp3 --format srt -o output.srt
 
 # Show all options
-audiotovtt --help
+audiosubtitler --help
 ```
 
 ### Python API
 
 ```python
-from audio2vtt import AudioToVTT
+from audio_subtitler import AudioSubtitler
 
-converter = AudioToVTT(
+# Initialize the converter
+converter = AudioSubtitler(
     model_size_or_path="base",
     device="cpu",
     compute_type="int8"
 )
 
-result = converter.transcribe("audio.mp3", language="en")
+# Generate VTT subtitles
+result = converter.transcribe("audio.mp3", format="vtt", language="en")
 print(result["vtt"])
 print(f"Transcribed {result['word_count']} words")
+
+# Generate SRT subtitles
+result = converter.transcribe("audio.mp3", format="srt", language="en")
+print(result["srt"])
 ```
 
 ### Transcribe from File Object
 
 ```python
 with open("audio.mp3", "rb") as audio_file:
-    result = converter.transcribe(audio_file)
+    # VTT format
+    result = converter.transcribe(audio_file, format="vtt")
     print(result["vtt"])
+    
+    # SRT format
+    result = converter.transcribe(audio_file, format="srt")
+    print(result["srt"])
 ```
 
 ### Advanced Configuration
 
 ```python
-converter = AudioToVTT(
+converter = AudioSubtitler(
     model_size_or_path="large-v3",
     device="cuda",
     compute_type="float16",
@@ -98,15 +115,17 @@ converter = AudioToVTT(
     download_root="./models"
 )
 
+# Transcribe with custom parameters
 result = converter.transcribe(
     "audio.mp3",
+    format="srt",  # or "vtt"
     language="en",
     beam_size=5,
     vad_filter=True,
     vad_parameters={"min_silence_duration_ms": 500}
 )
 
-print(f"VTT content: {result['vtt']}")
+print(f"Subtitle content: {result['srt']}")  # or result['vtt']
 print(f"Word count: {result['word_count']}")
 ```
 
@@ -157,7 +176,9 @@ Environment variables:
 
 Auto-detects language or specify: `en`, `es`, `fr`, `de`, `it`, `pt`, `ru`, `ja`, `ko`, `zh`, etc.
 
-## Output Format
+## Output Formats
+
+### VTT (WebVTT) Format
 
 ```
 WEBVTT
@@ -166,6 +187,18 @@ WEBVTT
 Hello, this is a test transcription.
 
 00:00:03.500 --> 00:00:07.200
+The audio is converted to text with timestamps.
+```
+
+### SRT Format
+
+```
+1
+00:00:00,000 --> 00:00:03,500
+Hello, this is a test transcription.
+
+2
+00:00:03,500 --> 00:00:07,200
 The audio is converted to text with timestamps.
 ```
 

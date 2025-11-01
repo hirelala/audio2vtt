@@ -3,9 +3,9 @@ import io
 import os
 import base64
 
-from src.audio_to_vtt import AudioToVTT
+from src.audio_subtitler import AudioSubtitler
 
-audio2vtt = AudioToVTT(
+audio2vtt = AudioSubtitler(
     model_size_or_path=os.getenv("WHISPER_MODEL", "base"),
     device=os.getenv("WHISPER_DEVICE", "cpu"),
     device_index=[int(i) for i in os.getenv("WHISPER_DEVICE_INDEX", "0").split(",")],
@@ -20,6 +20,7 @@ audio2vtt = AudioToVTT(
 def handler(event):
     job_input = event.get("input", {})
     audio_base64 = job_input.get("audio")
+    format = job_input.get("format", "vtt")
     if not audio_base64:
         return {"error": "No audio data provided. Please provide 'audio' field with base64 encoded audio data."}
     
@@ -29,7 +30,12 @@ def handler(event):
         return {"error": f"Failed to decode base64 audio data: {str(e)}"}
 
     try:    
-        return audio2vtt.transcribe(io.BytesIO(audio_data), beam_size=os.getenv("WHISPER_BEAM_SIZE", "5"))
+        return audio2vtt.transcribe(
+            io.BytesIO(audio_data),
+            format=format,
+            beam_size=os.getenv("WHISPER_BEAM_SIZE", "5"),
+            vad_filter=os.getenv("WHISPER_VAD_FILTER", "true").lower() == "true",
+        )
     except Exception as e:
         return {"error": f"Transcription failed: {str(e)}"}
 

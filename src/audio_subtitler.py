@@ -1,5 +1,5 @@
 from faster_whisper import WhisperModel
-from typing import BinaryIO, Union, Tuple, List, Dict, Any
+from typing import BinaryIO, Union, Tuple, List, Dict, Any, Literal
 import numpy as np
 
 STOP_CHARS = set(
@@ -12,41 +12,66 @@ STOP_CHARS = set(
     "⸮⁇⁈⁉"
 )
 
+SubtitleFormat = Literal["vtt", "srt"]
 
-class AudioToVTT:
+
+class AudioSubtitler:
     def __init__(self, **kwargs):
         self.model = WhisperModel(**kwargs)
     
     def transcribe(
         self,
         audio: Union[str, BinaryIO, np.ndarray],
+        format: SubtitleFormat = "vtt",
         **kwargs
     ) -> Dict[str, Any]:
+        """
+        Transcribe audio to subtitles.
+        
+        Args:
+            audio: Audio file path, file object, or numpy array
+            format: Output format - "vtt" or "srt"
+            **kwargs: Additional arguments passed to WhisperModel.transcribe()
+        
+        Returns:
+            Dictionary containing subtitle content and word count.
+            Keys: 'vtt' or 'srt' (depending on format), 'word_count'
+        """
         kwargs.setdefault("word_timestamps", True)
         kwargs.setdefault("vad_filter", True)
         kwargs.setdefault("vad_parameters", {"min_silence_duration_ms": 500})
         
         segments, _ = self.model.transcribe(audio=audio, **kwargs)
-        
         subtitles, word_count = self.segments_to_subtitle(segments)
         
-        items = []
-        for subtitle in subtitles:
-            text = subtitle.get("msg")
-            if text:
-                items.append(
-                    self.segment_text_to_vtt(
-                        text=text,
-                        start_time=subtitle.get("start_time"),
-                        end_time=subtitle.get("end_time")
-                    )
-                )
+        content = self._format_subtitles(subtitles, format)
         
-        vtt_content = "WEBVTT\n\n" + "\n".join(items)
         return {
-            "vtt": vtt_content,
+            format: content,
             "word_count": word_count
         }
+    
+    def _format_subtitles(self, subtitles: List[Dict], format: SubtitleFormat) -> str:
+        """Format subtitles into VTT or SRT format"""
+        items = []
+        
+        for idx, subtitle in enumerate(subtitles, start=1):
+            text = subtitle.get("msg")
+            if not text:
+                continue
+            
+            start_time = subtitle.get("start_time")
+            end_time = subtitle.get("end_time")
+            
+            if format == "vtt":
+                items.append(self._format_vtt_segment(text, start_time, end_time))
+            else:
+                items.append(self._format_srt_segment(idx, text, start_time, end_time))
+        
+        if format == "vtt":
+            return "WEBVTT\n\n" + "\n".join(items)
+        else:
+            return "\n".join(items)
 
     def segments_to_subtitle(self, segments) -> Tuple[List[Dict], int]:
         subtitles = []
@@ -105,24 +130,43 @@ class AudioToVTT:
         return subtitles, word_count
 
 
-    def seconds_to_hmsm(self, seconds: float) -> str:
+    def _seconds_to_time(self, seconds: float, separator: str = ".") -> str:
+        """Convert seconds to time format (HH:MM:SS.mmm or HH:MM:SS,mmm)"""
         hours = int(seconds // 3600)
         seconds = seconds % 3600
         minutes = int(seconds // 60)
         milliseconds = int(seconds * 1000) % 1000
         seconds = int(seconds % 60)
-        return "{:02d}:{:02d}:{:02d}.{:03d}".format(hours, minutes, seconds, milliseconds)
-
-    def segment_text_to_vtt(self, text: str, start_time: float, end_time: float) -> str:
-        start_time_str = self.seconds_to_hmsm(start_time)
-        end_time_str = self.seconds_to_hmsm(end_time)
-        text = text.strip()
-        text = text[0].upper() + text[1:] if text else text
-
-        return (
-            f"{start_time_str} --> {end_time_str}\n{text}\n"
+        return "{:02d}:{:02d}:{:02d}{}{:03d}".format(
+            hours, minutes, seconds, separator, milliseconds
         )
-
+    
+    def seconds_to_vtt_time(self, seconds: float) -> str:
+        """Convert seconds to VTT time format (HH:MM:SS.mmm)"""
+        return self._seconds_to_time(seconds, ".")
+    
+    def seconds_to_srt_time(self, seconds: float) -> str:
+        """Convert seconds to SRT time format (HH:MM:SS,mmm)"""
+        return self._seconds_to_time(seconds, ",")
+    
+    def _capitalize_text(self, text: str) -> str:
+        """Capitalize first letter of text"""
+        text = text.strip()
+        return text[0].upper() + text[1:] if text else text
+    
+    def _format_vtt_segment(self, text: str, start_time: float, end_time: float) -> str:
+        """Format a subtitle segment as VTT"""
+        start_time_str = self.seconds_to_vtt_time(start_time)
+        end_time_str = self.seconds_to_vtt_time(end_time)
+        text = self._capitalize_text(text)
+        return f"{start_time_str} --> {end_time_str}\n{text}\n"
+    
+    def _format_srt_segment(self, index: int, text: str, start_time: float, end_time: float) -> str:
+        """Format a subtitle segment as SRT"""
+        start_time_str = self.seconds_to_srt_time(start_time)
+        end_time_str = self.seconds_to_srt_time(end_time)
+        text = self._capitalize_text(text)
+        return f"{index}\n{start_time_str} --> {end_time_str}\n{text}\n"
 
     def end_with_stop_char(self, text: str) -> bool:
         if not text:
@@ -132,3 +176,4 @@ class AudioToVTT:
             if text.endswith(c):
                 return True
         return False
+
