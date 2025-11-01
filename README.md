@@ -7,14 +7,14 @@ Convert audio files to subtitles (VTT, SRT) using Faster-Whisper.
 
 ## Features
 
-- 🎵 Multiple audio formats (MP3, WAV, M4A, FLAC, OGG, AAC)
-- 🚀 Fast transcription with Faster-Whisper
-- 📝 Multiple subtitle formats: VTT (WebVTT) and SRT
-- 🎯 Smart format auto-detection from file extension
-- 🔧 Configurable models and settings
-- 🐳 Docker support (CPU/GPU)
-- ☁️ RunPod serverless deployment ready
-- 💻 Simple CLI and Python API
+- 🚀 **Full Faster-Whisper support** - All features and parameters from faster-whisper
+- 📝 **Multiple formats** - VTT (WebVTT) and SRT subtitle output
+- 🎯 **Smart auto-detection** - Automatically detects format from file extension
+- 🌍 **Multi-language** - Supports 100+ languages with auto-detection
+- ⚡ **GPU acceleration** - CUDA support for faster transcription
+- 🎙️ **Voice Activity Detection** - Automatically removes silence
+- 💻 **Simple APIs** - Easy-to-use CLI and Python API
+- 🐳 **Docker GPU support** - Ready for serverless deployment
 
 ## Installation
 
@@ -22,133 +22,90 @@ Convert audio files to subtitles (VTT, SRT) using Faster-Whisper.
 pip install audio-subtitler
 ```
 
-With RunPod support:
-
+Optional dependencies:
 ```bash
-pip install audio-subtitler[runpod]
-```
-
-For development:
-
-```bash
-pip install audio-subtitler[dev]
+pip install audio-subtitler[runpod]  # For RunPod serverless
+pip install audio-subtitler[dev]     # For development
 ```
 
 ## Quick Start
 
-### Command Line Interface
-
-After installation, you can use the `audiosubtitler` command (or the shorter `audiosub`):
+### CLI
 
 ```bash
-# Basic usage - VTT output to stdout
-audiosubtitler input.mp3 > output.vtt
+# Auto-detect format from file extension (recommended)
+audiosubtitler input.mp3 -o output.vtt
+audiosubtitler input.mp3 -o output.srt
 
-# Auto-detect format from file extension (recommended!)
-audiosubtitler input.mp3 -o output.srt  # Automatically uses SRT format
-audiosubtitler input.mp3 -o output.vtt  # Automatically uses VTT format
+# Specify options
+audiosubtitler input.mp3 -o output.vtt --model large-v3 --language en --device cuda
 
-# Explicit format specification
+# Output to stdout
 audiosubtitler input.mp3 --format srt > output.srt
 
-# Use a different model
-audiosubtitler input.mp3 --model large-v2 -o output.vtt
-
-# Specify language
-audiosubtitler input.mp3 --language en -o output.vtt
-
-# Use GPU
-audiosubtitler input.mp3 --device cuda -o output.vtt
-
-# Quiet mode (suppress progress messages)
-audiosubtitler input.mp3 --quiet -o output.vtt
-
-# Using the shorter command
-audiosub input.mp3 -o output.srt
-
-# Show all options
-audiosubtitler --help
+# Use shorter command
+audiosub input.mp3 -o output.vtt
 ```
 
 ### Python API
 
 ```python
-from audio_subtitler import AudioSubtitler
+from src import AudioSubtitler
 
-# Initialize the converter
+# Initialize
 converter = AudioSubtitler(
     model_size_or_path="base",
     device="cpu",
     compute_type="int8"
 )
 
-# Generate VTT subtitles
+# Transcribe
 result = converter.transcribe("audio.mp3", format="vtt", language="en")
-print(result["content"])
-print(f"Format: {result['format']}")
-print(f"Transcribed {result['word_count']} words")
 
-# Generate SRT subtitles
-result = converter.transcribe("audio.mp3", format="srt", language="en")
-print(result["content"])
+# Access results
+print(result["content"])     # Subtitle content
+print(result["format"])      # "vtt" or "srt"
+print(result["word_count"])  # Number of words
 ```
 
-### Transcribe from File Object
+## API Reference
 
+### AudioSubtitler
+
+**Constructor**: `AudioSubtitler(**kwargs)`
+
+Accepts all [faster-whisper WhisperModel](https://github.com/SYSTRAN/faster-whisper) parameters:
+- `model_size_or_path`: Model name (tiny, base, small, medium, large, large-v3) or path
+- `device`: "cpu", "cuda", or "auto"
+- `compute_type`: "int8", "int8_float16", "int16", "float16", "float32"
+- `cpu_threads`, `num_workers`, `download_root`, `local_files_only`, etc.
+
+**Method**: `transcribe(audio, format="vtt", **kwargs)`
+
+Parameters:
+- `audio`: File path (str), file object (BinaryIO), or numpy array
+- `format`: "vtt" or "srt" (default: "vtt")
+- `**kwargs`: All [faster-whisper transcribe](https://github.com/SYSTRAN/faster-whisper#transcribe) parameters
+  - `language`, `beam_size`, `vad_filter`, `vad_parameters`, `word_timestamps`, etc.
+
+Returns:
 ```python
-with open("audio.mp3", "rb") as audio_file:
-    # VTT format
-    result = converter.transcribe(audio_file, format="vtt")
-    print(result["content"])
-    
-    # SRT format
-    result = converter.transcribe(audio_file, format="srt")
-    print(result["content"])
+{
+    "content": str,      # Subtitle content
+    "format": str,       # "vtt" or "srt"
+    "word_count": int    # Word count
+}
 ```
 
-### Advanced Configuration
-
-```python
-converter = AudioSubtitler(
-    model_size_or_path="large-v3",
-    device="cuda",
-    compute_type="float16",
-    cpu_threads=8,
-    num_workers=4,
-    download_root="./models"
-)
-
-# Transcribe with custom parameters
-result = converter.transcribe(
-    "audio.mp3",
-    format="srt",  # or "vtt"
-    language="en",
-    beam_size=5,
-    vad_filter=True,
-    vad_parameters={"min_silence_duration_ms": 500}
-)
-
-print(f"Content: {result['content']}")
-print(f"Format: {result['format']}")
-print(f"Word count: {result['word_count']}")
-```
-
-## RunPod Serverless
-
-Deploy with Docker:
-
-```bash
-docker-compose up
-```
-
-For GPU:
+## Docker (GPU only)
 
 ```bash
 docker-compose -f docker-compose-gpu.yml up
 ```
 
-**Input:**
+Input/Output for RunPod serverless:
 ```json
+// Input
 {
   "input": {
     "audio": "<base64_encoded_audio>",
@@ -156,10 +113,8 @@ docker-compose -f docker-compose-gpu.yml up
     "format": "vtt"
   }
 }
-```
 
-**Output:**
-```json
+// Output
 {
   "content": "WEBVTT\n\n00:00:00.000 --> ...",
   "format": "vtt",
@@ -167,25 +122,9 @@ docker-compose -f docker-compose-gpu.yml up
 }
 ```
 
-## Configuration
+## Output Examples
 
-Environment variables:
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `WHISPER_MODEL` | `base` | Model size: tiny, base, small, medium, large, large-v3 |
-| `WHISPER_DEVICE` | `cpu` | Device: cpu, cuda, metal |
-| `WHISPER_COMPUTE_TYPE` | `int8` | Compute type: int8, float16, float32 |
-| `WHISPER_BEAM_SIZE` | `5` | Beam size for decoding |
-
-## Supported Languages
-
-Auto-detects language or specify: `en`, `es`, `fr`, `de`, `it`, `pt`, `ru`, `ja`, `ko`, `zh`, etc.
-
-## Output Formats
-
-### VTT (WebVTT) Format
-
+**VTT:**
 ```
 WEBVTT
 
@@ -196,8 +135,7 @@ Hello, this is a test transcription.
 The audio is converted to text with timestamps.
 ```
 
-### SRT Format
-
+**SRT:**
 ```
 1
 00:00:00,000 --> 00:00:03,500
@@ -208,13 +146,14 @@ Hello, this is a test transcription.
 The audio is converted to text with timestamps.
 ```
 
-## Publishing to PyPI
+## Environment Variables
 
-```bash
-pip install build twine
-python -m build
-python -m twine upload dist/*
-```
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `WHISPER_MODEL` | `base` | Model size |
+| `WHISPER_DEVICE` | `cpu` | cpu, cuda, auto |
+| `WHISPER_COMPUTE_TYPE` | `int8` | Compute type |
+| `WHISPER_BEAM_SIZE` | `5` | Beam size |
 
 ## License
 
